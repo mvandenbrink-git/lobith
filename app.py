@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, Input, Output
 #from jupyter_dash import JupyterDash
 #import dash_core_components as dcc
 #import dash_html_components as html
-from dash.dependencies import Input, Output
+#from dash.dependencies import Input, Output
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
                    'names':['q02', 'q10', 'q30', 'q50', 'q70', 'q90', 'q98'],
@@ -89,6 +89,11 @@ def build_graph (dfq, df_stat, include_currentyr = True, extra_years = []):
 
     fig.add_trace(go.Scatter(x=x, y=df_stat['min'], mode = 'lines', name = 'minimum', line= dict(color='green', width = 2, dash = 'dot')))
     
+    for yr in extra_years:
+        Qy = dfq[dfq.index.year == yr]['QLobith']
+        fig.add_trace(go.Scatter(x=x, y=Qy, mode = 'lines', name = currentyear, line= dict(color='black', width = 0.5)))
+
+
     if include_currentyr:
         Q_currentyear = dfq[dfq.index.year == currentyear]['QLobith']
         fill_series = pd.Series([np.nan for item in range(len(Q_currentyear), 365)])
@@ -108,14 +113,21 @@ dfs = calculate_stats(Qday,1901, currentyear-1)
 
 fig = build_graph(Qday, dfs)
 
-years = ['2018', '2003', '1976', '1947', '1921']
+years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
 
 app.layout = html.Div([
     dcc.Graph(id = 'graph', figure = fig),
     dcc.RangeSlider(id='stats', min= min(Qday.index.year), max = max(Qday.index.year),step=1, value = [1920,2018]),
-    dcc.Checklist(id='jaren' ,options=years, value = [str(currentyear)] ),
-    dcc.Dropdown('extra_yr',Qday.index.year.unique(),[])
+    dcc.Checklist(id='years' ,options=years, value = [str(currentyear)] ),
+    dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
 ])
+
+@app.callback(
+    Output(component_id='graph', component_property='figure'),
+    Input(component_id='extra_yr', component_property='value')
+)
+def UpdateGraph(extra_years):
+    return build_graph(Qday, dfs, extra_years= extra_years)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
