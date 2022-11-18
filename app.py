@@ -2,10 +2,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output
-#from jupyter_dash import JupyterDash
-#import dash_core_components as dcc
-#import dash_html_components as html
-#from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
                    'names':['q02', 'q10', 'q30', 'q50', 'q70', 'q90', 'q98'],
@@ -105,7 +102,7 @@ def build_graph (dfq, df_stat, include_currentyr = True, extra_years = []):
 
     return fig
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -115,11 +112,15 @@ fig = build_graph(Qday, dfs)
 
 years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
 
-app.layout = html.Div([
-    dcc.Graph(id = 'graph', figure = fig),
-    dcc.RangeSlider(id='stats', min= min(Qday.index.year), max = max(Qday.index.year),step=1, value = [1920,2018]),
-    dcc.Checklist(id='years' ,options=years, value = [str(currentyear)] ),
-    dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
+app.layout = dbc.Container([
+    dbc.Row([
+        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=11),
+        dbc.Col(dcc.Checklist(id='years' ,options=years, value = [str(currentyear)]))
+    ]),
+    dbc.Row([
+        dcc.RangeSlider(id='stats', min= min(Qday.index.year), max = max(Qday.index.year),step=10, value = [1920,2018]),
+        dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
+    ])
 ])
 
 @app.callback(
