@@ -72,7 +72,7 @@ def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
 
     return stats_rolling
 
-def build_graph (dfq, df_stat, include_currentyr = True, extra_years = []):
+def build_graph (dfq, df_stat, ref_yr = None, extra_years = []):
     
     x = pd.date_range(start="2022-01-01",end="2022-12-31")
 
@@ -88,47 +88,81 @@ def build_graph (dfq, df_stat, include_currentyr = True, extra_years = []):
     
     for yr in extra_years:
         Qy = dfq[dfq.index.year == yr]['QLobith']
-        fig.add_trace(go.Scatter(x=x, y=Qy, mode = 'lines', name = currentyear, line= dict(color='black', width = 0.5)))
+        fig.add_trace(go.Scatter(x=x, y=Qy, mode = 'lines', name = yr, line= dict(color='black', width = 0.5)))
 
 
-    if include_currentyr:
-        Q_currentyear = dfq[dfq.index.year == currentyear]['QLobith']
-        fill_series = pd.Series([np.nan for item in range(len(Q_currentyear), 365)])
-        Q_currentyear = pd.concat([Q_currentyear, fill_series])
-        fig.add_trace(go.Scatter(x=x, y=Q_currentyear, mode = 'lines', name = currentyear, line= dict(color='black')))
+    if not (ref_yr is None):
+        Q_refyr = dfq[dfq.index.year == ref_yr]['QLobith']
+        ref_yr_label = str(ref_yr)
 
-    fig.update_layout(title= 'Afvoer Lobith ' + str(currentyear), xaxis_title='datum', yaxis_title='Afvoer [m3/s]')
+        if len(Q_refyr) < 365:
+            fill_series = pd.Series([np.nan for item in range(len(Q_refyr), 365)])
+            Q_refyr = pd.concat([Q_refyr, fill_series])
+        fig.add_trace(go.Scatter(x=x, y=Q_refyr, mode = 'lines', name = ref_yr, line= dict(color='black')))
+    else:
+        ref_yr_label = ''
+
+    fig.update_layout(title= 'Afvoer Lobith ' + ref_yr_label, xaxis_title='datum', yaxis_title='Afvoer [m3/s]')
     fig.update_yaxes(range=[0,6000])
 
     return fig
 
-external_stylesheets = [dbc.themes.BOOTSTRAP]
+external_stylesheets = [dbc.themes.CERULEAN]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
+reference_year = currentyear
+
 dfs = calculate_stats(Qday,1901, currentyear-1)
 
-fig = build_graph(Qday, dfs)
+fig = build_graph(Qday, dfs, reference_year)
 
-years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
+#years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
 
 app.layout = dbc.Container([
     dbc.Row([
-        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=11),
-        dbc.Col(dcc.Checklist(id='years' ,options=years, value = [str(currentyear)]))
+        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=10),
+        dbc.Col([
+            dbc.Row(dbc.Label("Referentiejaar")),
+            dbc.Row([
+                dcc.Dropdown(id='ref_yr',options=Qday.index.year.unique(),value=currentyear),
+                html.H5("Extra jaren"),
+                dcc.Dropdown(id='extra_yrs',options=Qday.index.year.unique(),value=[],multi=True)
+            ])
+
+        ])
     ]),
     dbc.Row([
-        dcc.RangeSlider(id='stats', min= min(Qday.index.year), max = max(Qday.index.year),step=10, value = [1920,2018]),
-        dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
+        dbc.Col(
+            dcc.RangeSlider(id='stats', 
+                            min= 1901, 
+                            max = max(Qday.index.year), 
+                            value = [1901,currentyear-1],
+                            pushable = 10,
+                            marks = {1901:'1901',1910:'1910',1920:'1920', 1930:'1930',1940:'1940',
+                                     1950:'1950',1960:'1960', 1970:'1970', 1980:'1980', 1990:'1990', 
+                                     2000:'2000',2010:'2010', currentyear:str(currentyear)}
+            ), width=10
+        ),
+        dbc.Col([
+            dbc.Label("Smoothing window"),
+            dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5, debounce=True)
+        ])
+        #dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
     ])
 ])
 
 @app.callback(
-    Output(component_id='graph', component_property='figure'),
-    Input(component_id='extra_yr', component_property='value')
+    Output(component_id='graph', component_property='figure'),[
+    Input(component_id='ref_yr', component_property='value'),
+    Input(component_id='extra_yrs', component_property='value'),
+    Input(component_id='stats', component_property='value'),
+    Input(component_id='sm_window', component_property='value')
+    ]  
 )
-def UpdateGraph(extra_years):
-    return build_graph(Qday, dfs, extra_years= extra_years)
+def UpdateGraph(ref_yr,extra_years,stats_range,window):
+    dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window) 
+    return build_graph(Qday, dfs, ref_yr, extra_years= extra_years)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
