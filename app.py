@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from dash import Dash, dcc, html, Input, Output
+from dash import Dash, dcc, html, Input, Output, ctx
 import dash_bootstrap_components as dbc
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
@@ -72,7 +72,7 @@ def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
 
     return stats_rolling
 
-def build_graph (dfq, df_stat, ref_yr = None, extra_years = []):
+def build_graph (dfq, df_stat, ref_yr = None, extra_years = [], qrange = [0,12000]):
     
     x = pd.date_range(start="2022-01-01",end="2022-12-31")
 
@@ -102,53 +102,63 @@ def build_graph (dfq, df_stat, ref_yr = None, extra_years = []):
     else:
         ref_yr_label = ''
 
-    fig.update_layout(title= 'Afvoer Lobith ' + ref_yr_label, xaxis_title='datum', yaxis_title='Afvoer [m3/s]')
-    fig.update_yaxes(range=[0,6000])
+    fig.update_layout(xaxis_title='datum', yaxis_title='Afvoer [m3/s]')
+    fig.update_yaxes(range=qrange)
 
     return fig
+
+def create_subtitle(stat_range):
+    return 'ten opzichte van statistiek {}-{}'.format(str(stat_range[0]), str(stat_range[1])) 
+
+def calculate_rangemax (ref_yr):
+    return np.ceil(Qday[Qday.index.year == ref_yr]['QLobith'].max()/1000)*1000
 
 external_stylesheets = [dbc.themes.CERULEAN]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-reference_year = currentyear
+stats_period = [1901,currentyear-1]
+dfs = calculate_stats(Qday,stats_period[0], stats_period[1])
 
-dfs = calculate_stats(Qday,1901, currentyear-1)
-
-fig = build_graph(Qday, dfs, reference_year)
+fig = build_graph(Qday, dfs, currentyear)
 
 #years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
 
 app.layout = dbc.Container([
+    dbc.Row(html.H2('Afvoer Lobith ' + str(currentyear),id='title')),
+    dbc.Row(html.H5(create_subtitle(stats_period), id='subtitle')),
     dbc.Row([
-        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=10),
+        dbc.Col(dcc.RangeSlider(id='qRange',min = 0, max = 12000, 
+                                    value = [0,calculate_rangemax(currentyear)],
+                                    step = 1000, vertical = True), width=1),
+        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=9),
         dbc.Col([
-            dbc.Row(dbc.Label("Referentiejaar")),
+            dbc.Row(html.H6("Referentiejaar")),
             dbc.Row([
                 dcc.Dropdown(id='ref_yr',options=Qday.index.year.unique(),value=currentyear),
-                html.H5("Extra jaren"),
+                html.H6("Extra jaren"),
                 dcc.Dropdown(id='extra_yrs',options=Qday.index.year.unique(),value=[],multi=True)
             ])
 
         ])
     ]),
     dbc.Row([
-        dbc.Col(
+        dbc.Col([
+            dbc.Label('Statistiek berekenen over'),
             dcc.RangeSlider(id='stats', 
                             min= 1901, 
                             max = max(Qday.index.year), 
                             value = [1901,currentyear-1],
                             pushable = 10,
-                            marks = {1901:'1901',1910:'1910',1920:'1920', 1930:'1930',1940:'1940',
-                                     1950:'1950',1960:'1960', 1970:'1970', 1980:'1980', 1990:'1990', 
+                            marks = {1901:'1901',1910:'1910',1920:'1920',1930:'1930',1940:'1940',
+                                     1950:'1950',1960:'1960',1970:'1970',1980:'1980',1990:'1990', 
                                      2000:'2000',2010:'2010', currentyear:str(currentyear)}
-            ), width=10
-        ),
+        )], width=10
+    ),
         dbc.Col([
-            dbc.Label("Smoothing window"),
-            dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5, debounce=True)
+            dbc.FormText("Smoothing window"),
+            dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5)
         ])
-        #dcc.Dropdown(id='extra_yr',options=Qday.index.year.unique(),value=[],multi=True)
     ])
 ])
 
@@ -157,12 +167,40 @@ app.layout = dbc.Container([
     Input(component_id='ref_yr', component_property='value'),
     Input(component_id='extra_yrs', component_property='value'),
     Input(component_id='stats', component_property='value'),
-    Input(component_id='sm_window', component_property='value')
+    Input(component_id='sm_window', component_property='value'),
+    Input(component_id='qRange', component_property='value')
     ]  
 )
-def UpdateGraph(ref_yr,extra_years,stats_range,window):
-    dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window) 
-    return build_graph(Qday, dfs, ref_yr, extra_years= extra_years)
+def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
+    dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
+    if ctx.triggered_id == 'ref_yr':
+         qrange=[0,calculate_rangemax(ref_yr)]
+    return build_graph(Qday, dfs, ref_yr, extra_years= extra_years,qrange=qrange)
+
+@app.callback(
+    Output(component_id='title', component_property='children'),
+    Input(component_id='ref_yr', component_property='value'),
+)
+def ChangeTitle(ref_yr):
+    if ref_yr is None:
+        return 'Afvoer Lobith'
+    else:
+        return 'Afvoer Lobith ' + str(ref_yr)
+
+@app.callback(
+    Output(component_id='qRange', component_property='value'),
+    Input(component_id='ref_yr', component_property='value'),
+)
+def reset_qRange(ref_yr):
+    return [0,calculate_rangemax(ref_yr)]
+
+@app.callback(
+    Output(component_id='subtitle', component_property='children'),
+    Input(component_id='stats', component_property='value'),
+)
+def ChangeSubtitle(stat_range):
+    return create_subtitle(stat_range)
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
