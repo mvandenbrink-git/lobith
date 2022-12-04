@@ -17,7 +17,7 @@ bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
 #colors = ['red', 'orange', 'green', 'lightblue','darkblue', 'purple']
 
 # data ophalen: oude data inlezen, ophalen nieuwe data en weer wegschrijven in apart script
-import lobith_data_update as lobith
+import api.lobith_data_update as lobith
 
 #df = lobith.read_and_update_lobith('data/Q_Lobith_all.csv')
 
