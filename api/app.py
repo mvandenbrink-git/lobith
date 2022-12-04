@@ -21,7 +21,7 @@ import api.lobith_data_update as lobith
 
 #df = lobith.read_and_update_lobith('data/Q_Lobith_all.csv')
 
-file_lob = 'data/Q_Lobith_all.csv'
+file_lob = '../data/Q_Lobith_all.csv'
 
 res = lobith.read_lobith_file(file_lob)
 df = res[1]
