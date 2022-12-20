@@ -5,7 +5,7 @@ from dash import Dash, dcc, html, Input, Output, ctx
 import dash_bootstrap_components as dbc
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
-                   'names':['q02', 'q10', 'q30', 'q50', 'q70', 'q90', 'q98'],
+                   'names':['p02', 'p10', 'p30', 'p50', 'p70', 'p90', 'p98'],
                    'colours': ['rgba(255,  0,  0,0.5)',
                                'rgba(255,165,  0,0.5)', 
                                'rgba( 28,218, 59,0.5)',
@@ -14,7 +14,8 @@ bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
                                'rgba(110, 28,218,0.5)'
                               ] 
                    }
-#colors = ['red', 'orange', 'green', 'lightblue','darkblue', 'purple']
+extra_yrs_colors = ['black', 'blue', 'green']
+extra_yrs_dash = ['dot', 'dash', 'dashdot']
 
 # data ophalen: oude data inlezen, ophalen nieuwe data en weer wegschrijven in apart script
 import lobith_data_update as lobith
@@ -51,7 +52,7 @@ def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
     stats = stat_data.quantile(bckgr_quantiles['numeric']).reset_index(level=1)
     stats = stats.rename(columns = {'level_1':'quantiles'})
 
-    stats['stat'] = ['q' + format(int(q * 100),"02d") for q in stats['quantiles']]
+    stats['stat'] = ['p' + format(int(q * 100),"02d") for q in stats['quantiles']]
     stats = stats.pivot(columns = 'stat', values = 'QLobith')
 
     stats['min'] = stat_data.min()
@@ -86,9 +87,29 @@ def build_graph (dfq, df_stat, ref_yr = None, extra_years = [], qrange = [0,1200
 
     fig.add_trace(go.Scatter(x=x, y=df_stat['min'], mode = 'lines', name = 'minimum', line= dict(color='green', width = 2, dash = 'dot')))
     
+    i=0
     for yr in extra_years:
         Qy = dfq[dfq.index.year == yr]['QLobith']
-        fig.add_trace(go.Scatter(x=x, y=Qy, mode = 'lines', name = yr, line= dict(color='black', width = 0.5)))
+        i += 1
+
+        if i <= (len(extra_yrs_colors)*len(extra_yrs_dash)):
+            line_dict = dict(
+                             color=extra_yrs_colors[(i-1) // len(extra_yrs_dash)], 
+                             dash = extra_yrs_dash[(i-1) % len(extra_yrs_dash)], 
+                             width = 0.7
+                            )
+        else:
+            line_dict = dict(
+                             color=extra_yrs_colors[-1], 
+                             dash = extra_yrs_dash[-1], 
+                             width = 0.7
+                            )
+        fig.add_trace(go.Scatter(
+                                  x=x, y=Qy, 
+                                  mode = 'lines', name = yr, 
+                                  line= line_dict
+                                )
+                      )
 
 
     if not (ref_yr is None):
@@ -104,6 +125,7 @@ def build_graph (dfq, df_stat, ref_yr = None, extra_years = [], qrange = [0,1200
 
     fig.update_layout(xaxis_title='datum', yaxis_title='Afvoer [m3/s]')
     fig.update_yaxes(range=qrange)
+    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20))
 
     return fig
 
@@ -143,24 +165,26 @@ app.layout = dbc.Container([
         ])
     ]),
     dbc.Row([
-        dbc.Col([
-            dbc.Label('Statistiek berekenen over'),
-            dcc.RangeSlider(id='stats', 
-                            min= 1901, 
-                            max = max(Qday.index.year), 
-                            value = [1901,currentyear-1],
-                            pushable = 10,
-                            marks = {1901:'1901',1910:'1910',1920:'1920',1930:'1930',1940:'1940',
-                                     1950:'1950',1960:'1960',1970:'1970',1980:'1980',1990:'1990', 
-                                     2000:'2000',2010:'2010', currentyear:str(currentyear)}
-        )], width=10
-    ),
-        dbc.Col([
-            dbc.FormText("Smoothing window"),
-            dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5)
-        ])
+             dbc.Col([
+                      dbc.Label('Statistiek berekenen over'),
+                      dcc.RangeSlider(id='stats', 
+                                      min= 1901, 
+                                      max = max(Qday.index.year), 
+                                      value = [1901,currentyear-1],
+                                      pushable = 10,
+                                      marks = {1901:'1901',1910:'1910',1920:'1920',1930:'1930',1940:'1940',
+                                               1950:'1950',1960:'1960',1970:'1970',1980:'1980',1990:'1990', 
+                                               2000:'2000',2010:'2010', currentyear:str(currentyear)}
+                                    )
+                      ], 
+                      width=10
+                    ),
+            dbc.Col([
+                     dbc.FormText("Smoothing window"),
+                     dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5)
+                    ])
+           ])
     ])
-])
 
 @app.callback(
     Output(component_id='graph', component_property='figure'),[
