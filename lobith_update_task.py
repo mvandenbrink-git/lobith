@@ -1,7 +1,7 @@
 import lobith_data_update as lobith
 import datetime
 
-file_lob = 'data/Q_Lobith_all.csv'
+file_lob = 'data/Q_Lobith_2023-.csv'
 file_log = 'qlobith_task_log.txt'
 
 res = lobith.read_lobith_file(file_lob)

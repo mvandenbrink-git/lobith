@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, ctx
 import dash_bootstrap_components as dbc
+import lobith_data_update as lobith
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
                    'names':['p02', 'p10', 'p30', 'p50', 'p70', 'p90', 'p98'],
@@ -18,29 +19,30 @@ extra_yrs_colors = ['black', 'blue', 'green']
 extra_yrs_dash = ['dot', 'dash', 'dashdot']
 
 # data ophalen: oude data inlezen, ophalen nieuwe data en weer wegschrijven in apart script
-import lobith_data_update as lobith
+def read_base_data():
 
-#df = lobith.read_and_update_lobith('data/Q_Lobith_all.csv')
+    lobith_files =['data/Q_Lobith_1901-2022.csv', 'data/Q_Lobith_2023-.csv']
 
-file_lob = 'data/Q_Lobith_all.csv'
+    df = []
+    for f in lobith_files:
+        res = lobith.read_lobith_file(f)
+        print(res[0])
+        df = df + [res[1]]
 
-res = lobith.read_lobith_file(file_lob)
-df = res[1]
+    df = pd.concat(df, axis= 0)
 
-#start_date = df.index[-1].strftime(lobith.date_formatstring_day)
-#res = lobith.lobith_update(df, start_date,lobith.url_data_ophalen,file_lob)
-#df = res['data']
+    # reeks aggregeren naar daggemiddelde waarden
+    Qday = pd.DataFrame(df.resample('D').mean())
 
-# reeks aggregeren naar daggemiddelde waarden
-Qday = pd.DataFrame(df.resample('D').mean())
+    # hulpkolom toevoegen met dagen van het jaar
+    Qday['day'] = Qday.index.strftime("%m-%d")
 
-# hulpkolom toevoegen met dagen van het jaar
-Qday['day'] = Qday.index.strftime("%m-%d")
+    # alle schrikkeldagen eruit gooien
+    Qday = Qday[~(Qday['day'] == '02-29')]
 
-# alle schrikkeldagen eruit gooien
-Qday = Qday[~(Qday['day'] == '02-29')]
+    currentyear = Qday.index[-1].year
 
-currentyear = Qday.index[-1].year
+    return Qday, currentyear
 
 def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
     
@@ -73,7 +75,7 @@ def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
 
     return stats_rolling
 
-def build_graph (dfq, df_stat, ref_yr = None, extra_years = [], qrange = [0,12000]):
+def build_graph (dfq, df_stat, currentyear, ref_yr = None, extra_years = [], qrange = [0,12000]):
     
     x = pd.date_range(start="2022-01-01",end="2022-12-31")
 
@@ -139,9 +141,9 @@ external_stylesheets = [dbc.themes.CERULEAN]
 
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
+Qday, currentyear = read_base_data()
 stats_period = [1901,currentyear-1]
 dfs = calculate_stats(Qday,stats_period[0], stats_period[1])
-
 fig = build_graph(Qday, dfs, currentyear)
 
 #years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
@@ -199,7 +201,7 @@ def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
     dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
     if ctx.triggered_id == 'ref_yr':
          qrange=[0,calculate_rangemax(ref_yr)]
-    return build_graph(Qday, dfs, ref_yr, extra_years= extra_years,qrange=qrange)
+    return build_graph(Qday, dfs, currentyear,ref_yr, extra_years= extra_years,qrange=qrange)
 
 @app.callback(
     Output(component_id='title', component_property='children'),
@@ -227,4 +229,4 @@ def ChangeSubtitle(stat_range):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
