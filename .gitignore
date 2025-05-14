@@ -1,4 +1,4 @@
-Lobith actueel en statistiek.ipynb
+Oefenen en proberen.ipynb
 data/Q_Lobith_all.csv
 .vscode/launch.json
 .ipynb_checkpoints/Lobith actueel en statistiek-checkpoint.ipynb
@@ -9,3 +9,5 @@ Lobith dash.ipynb
 __pycache__/test.cpython-39.pyc
 lobith.code-workspace
 qlobith_task_log.txt
+data/hist/20250425_009.csv
+data/hist/20250425_009.zip

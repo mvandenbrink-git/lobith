@@ -3,81 +3,36 @@ import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, ctx
 import dash_bootstrap_components as dbc
-import lobith_data_update as lobith
+#import lobith_data_update as lobith
+from LMWTimeseries import LMWTimeseries
 
 bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
                    'names':['p02', 'p10', 'p30', 'p50', 'p70', 'p90', 'p98'],
                    'colours': ['rgba(255,  0,  0,0.5)',
-                               'rgba(255,165,  0,0.5)', 
+                               'rgba(255,165,  0,0.5)',
                                'rgba( 28,218, 59,0.5)',
                                'rgba(  0,171,255,0.5)',
                                'rgba(  7, 90,132,0.5)',
                                'rgba(110, 28,218,0.5)'
-                              ] 
+                              ]
                    }
 extra_yrs_colors = ['black', 'blue', 'green']
 extra_yrs_dash = ['dot', 'dash', 'dashdot']
 
-# data ophalen: oude data inlezen, ophalen nieuwe data en weer wegschrijven in apart script
-def read_base_data():
+def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years = [], qrange = [0,12000], 
+                 stats_period = [1991,2020], window = 5, quantiles = bckgr_quantiles['numeric']):
+    """
+    """
 
-    lobith_files =['data/Q_Lobith_1901-2022.csv', 'data/Q_Lobith_2023-.csv']
+    if (ref_yr is None):
+        date_year = LMW_series.current_year()
+    else:
+        date_year = ref_yr
 
-    df = []
-    for f in lobith_files:
-        res = lobith.read_lobith_file(f)
-        print(res[0])
-        df = df + [res[1]]
+    x = pd.date_range(start=f"{date_year}-01-01",end=f"{date_year}-12-31")
 
-    df = pd.concat(df, axis= 0)
-
-    # reeks aggregeren naar daggemiddelde waarden
-    Qday = pd.DataFrame(df.resample('D').mean())
-
-    # hulpkolom toevoegen met dagen van het jaar
-    Qday['day'] = Qday.index.strftime("%m-%d")
-
-    # alle schrikkeldagen eruit gooien
-    Qday = Qday[~(Qday['day'] == '02-29')]
-
-    currentyear = Qday.index[-1].year
-
-    return Qday, currentyear
-
-def calculate_stats(df, start_yr, end_yr, smoothing_window = 5):
-    
-    st_date = str(start_yr) + '-01-01'
-    ed_date = str(end_yr) + '-12-31'
-    stat_data = df.loc[st_date:ed_date].groupby('day')
-    
-    #stat_data = df[df.index.year in range(start_yr,end_yr+1)].groupby('day')
-    stats = stat_data.quantile(bckgr_quantiles['numeric']).reset_index(level=1)
-    stats = stats.rename(columns = {'level_1':'quantiles'})
-
-    stats['stat'] = ['p' + format(int(q * 100),"02d") for q in stats['quantiles']]
-    stats = stats.pivot(columns = 'stat', values = 'QLobith')
-
-    stats['min'] = stat_data.min()
-    stats['max'] = stat_data.max()
-
-    # Voor een rustiger beeld worden de kwantielen gesmoothed door een zwevend gemiddelde toe te passen.
-
-    # om ook voor de eerste en laatste dagen van het jaar goede waarden te kunnen berekenen, 
-    # worden de laatste dagen van december aan het begin van de tabel toegevoegd. Evenzo worden 
-    # de eerste dagen van januari aan het eind toegevoegd.
-    stats_rolling = pd.concat([stats.tail(smoothing_window), stats, stats.head(smoothing_window)])
-
-    # de daadwerkelijke berekening
-    stats_rolling = stats_rolling.rolling(window = smoothing_window, center = True).mean()
-
-    # de extra rijen aan begin en eind van de tabel worden weer verwijderd
-    stats_rolling = stats_rolling[smoothing_window:(smoothing_window+365)]
-
-    return stats_rolling
-
-def build_graph (dfq, df_stat, currentyear, ref_yr = None, extra_years = [], qrange = [0,12000]):
-    
-    x = pd.date_range(start="2022-01-01",end="2022-12-31")
+    df_stat = LMW_series.calculate_stats(stats_period[0], stats_period[1], quantiles, window)
+    dfq = LMW_series.get_data()
 
     fig = go.Figure()
 
@@ -88,40 +43,46 @@ def build_graph (dfq, df_stat, currentyear, ref_yr = None, extra_years = [], qra
                       name = bckgr_quantiles['names'][i-1] + ' - ' + bckgr_quantiles['names'][i], mode = 'none'))
 
     fig.add_trace(go.Scatter(x=x, y=df_stat['min'], mode = 'lines', name = 'minimum', line= dict(color='green', width = 2, dash = 'dot')))
-    
+
     i=0
     for yr in extra_years:
-        Qy = dfq[dfq.index.year == yr]['QLobith']
+        Qy = dfq[dfq.index.year == yr]
         i += 1
 
         if i <= (len(extra_yrs_colors)*len(extra_yrs_dash)):
             line_dict = dict(
-                             color=extra_yrs_colors[(i-1) // len(extra_yrs_dash)], 
-                             dash = extra_yrs_dash[(i-1) % len(extra_yrs_dash)], 
-                             width = 0.7
+                             color=extra_yrs_colors[(i-1) // len(extra_yrs_dash)],
+                             dash = extra_yrs_dash[(i-1) % len(extra_yrs_dash)],
+                             width = 1
                             )
         else:
             line_dict = dict(
-                             color=extra_yrs_colors[-1], 
-                             dash = extra_yrs_dash[-1], 
-                             width = 0.7
+                             color=extra_yrs_colors[-1],
+                             dash = extra_yrs_dash[-1],
+                             width = 1
                             )
         fig.add_trace(go.Scatter(
-                                  x=x, y=Qy, 
-                                  mode = 'lines', name = yr, 
+                                  x=x, y=Qy,
+                                  mode = 'lines', name = yr,
                                   line= line_dict
                                 )
                       )
 
 
     if not (ref_yr is None):
-        Q_refyr = dfq[dfq.index.year == ref_yr]['QLobith']
+        fill_series = pd.Series(np.nan, index = pd.date_range(start=f"{ref_yr}-01-01",end=f"{ref_yr}-12-31"))
+
+        Q_refyr = fill_series.copy()
+        Q_refyr.update(dfq[dfq.index.year == ref_yr])
         ref_yr_label = str(ref_yr)
 
-        if len(Q_refyr) < 365:
-            fill_series = pd.Series([np.nan for item in range(len(Q_refyr), 365)])
-            Q_refyr = pd.concat([Q_refyr, fill_series])
         fig.add_trace(go.Scatter(x=x, y=Q_refyr, mode = 'lines', name = ref_yr, line= dict(color='black')))
+
+        if ref_yr == LMW_series.current_year():
+            if not (LMW_prediction is None):
+                Q_pred = fill_series.copy()
+                Q_pred.update(LMW_prediction.get_data())
+                fig.add_trace(go.Scatter(x=x, y=Q_pred, mode = 'lines', name = 'verwacht', line= dict(color='red')))
     else:
         ref_yr_label = ''
 
@@ -132,101 +93,187 @@ def build_graph (dfq, df_stat, currentyear, ref_yr = None, extra_years = [], qra
     return fig
 
 def create_subtitle(stat_range):
-    return 'ten opzichte van statistiek {}-{}'.format(str(stat_range[0]), str(stat_range[1])) 
+    return 'ten opzichte van statistiek {}-{}'.format(str(stat_range[0]), str(stat_range[1]))
 
-def calculate_rangemax (ref_yr):
-    return np.ceil(Qday[Qday.index.year == ref_yr]['QLobith'].max()/1000)*1000
+def calculate_rangemax (LMW_series,ref_yr):
+    return LMW_series.range_max(ref_yr)
 
-external_stylesheets = [dbc.themes.CERULEAN]
-
-app = Dash(__name__, external_stylesheets=external_stylesheets)
-
-Qday, currentyear = read_base_data()
-stats_period = [1901,currentyear-1]
-dfs = calculate_stats(Qday,stats_period[0], stats_period[1])
-fig = build_graph(Qday, dfs, currentyear)
-
-#years = [str(currentyear),'2018', '2003', '1976', '1947', '1921']
-
-app.layout = dbc.Container([
-    dbc.Row(html.H2('Afvoer Lobith ' + str(currentyear),id='title')),
-    dbc.Row(html.H5(create_subtitle(stats_period), id='subtitle')),
-    dbc.Row([
-        dbc.Col(dcc.RangeSlider(id='qRange',min = 0, max = 12000, 
-                                    value = [0,calculate_rangemax(currentyear)],
-                                    step = 1000, vertical = True), width=1),
-        dbc.Col(dcc.Graph(id = 'graph', figure = fig), width=9),
-        dbc.Col([
-            dbc.Row(html.H6("Referentiejaar")),
+def build_page(LMW_series, LMW_prediction,prefix):
+    """
+    Build the page with the given LMW_series and prefix.
+    """
+    return([dbc.Row(html.H2('Afvoer ' + LMW_series.attributes['name'] + ' ' + str(LMW_series.current_year()), id=prefix + 'title')),
+            dbc.Row(html.H5(create_subtitle([1991, 2020]), id=prefix + 'subtitle')),
             dbc.Row([
-                dcc.Dropdown(id='ref_yr',options=Qday.index.year.unique(),value=currentyear),
-                html.H6("Extra jaren"),
-                dcc.Dropdown(id='extra_yrs',options=Qday.index.year.unique(),value=[],multi=True)
-            ])
-
-        ])
-    ]),
-    dbc.Row([
+                dbc.Col(dcc.RangeSlider(id=prefix + 'qRange', min=0, max=calculate_rangemax(LMW_series,None),
+                                        value=[0, calculate_rangemax(LMW_series, LMW_series.current_year())],
+                                        step=1000, vertical=True), width=1),
+                dbc.Col(dcc.Graph(id=prefix + 'graph', figure=build_graph(LMW_series, LMW_prediction)), width=9),
+                dbc.Col([
+                    dbc.Row(html.H6("Referentiejaar")),
+                    dbc.Row([
+                        dcc.Dropdown(id=prefix + 'ref_yr', options=LMW_series.get_data().index.year.unique(),
+                                     value=LMW_series.current_year()),
+                        html.H6("Extra jaren"),
+                        dcc.Dropdown(id=prefix + 'extra_yrs',
+                                     options=LMW_series.get_data().index.year.unique(), value=[], multi=True)
+                    ])
+                ])
+            ]),
+            dbc.Row([
              dbc.Col([
                       dbc.Label('Statistiek berekenen over'),
-                      dcc.RangeSlider(id='stats', 
-                                      min= 1901, 
-                                      max = max(Qday.index.year), 
-                                      value = [1901,currentyear-1],
-                                      pushable = 10,
-                                      marks = {1901:'1901',1910:'1910',1920:'1920',1930:'1930',1940:'1940',
-                                               1950:'1950',1960:'1960',1970:'1970',1980:'1980',1990:'1990', 
-                                               2000:'2000',2010:'2010', currentyear:str(currentyear)}
+                      dcc.RangeSlider(id=prefix + 'stats',
+                                      min= min(LMW_series.time_range('years')),
+                                      max = max(LMW_series.time_range('years')),
+                                      step = None,
+                                      value = list(LMW_series.time_range('climate')),
+                                      pushable = 20,
+                                      marks = LMW_series.time_range('marks')
+                                      #marks={}
                                     )
-                      ], 
+                      ],
                       width=10
                     ),
             dbc.Col([
                      dbc.FormText("Smoothing window"),
-                     dcc.Input(id='sm_window',type="number", min=1, max=10, step=1, value= 5)
+                     dcc.Input(id=prefix + 'sm_window',type="number", min=1, max=10, step=1, value= 5)
                     ])
            ])
     ])
 
-@app.callback(
-    Output(component_id='graph', component_property='figure'),[
-    Input(component_id='ref_yr', component_property='value'),
-    Input(component_id='extra_yrs', component_property='value'),
-    Input(component_id='stats', component_property='value'),
-    Input(component_id='sm_window', component_property='value'),
-    Input(component_id='qRange', component_property='value')
-    ]  
+external_stylesheets = [dbc.themes.FLATLY]
+
+app = Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
+
+#Qday, currentyear = read_base_data()
+
+Rijn = LMWTimeseries('lobith.cfg')
+Rijn_verw = LMWTimeseries('lobith_verwacht.cfg')
+Maas = LMWTimeseries('stpieter.cfg')
+Maas_verw = LMWTimeseries('stpieter_verwacht.cfg')
+
+Rijn.update()
+Rijn_verw.update(append=False)
+Maas.update()
+Maas_verw.update(append=False)
+
+p1 = build_page(Rijn, Rijn_verw,'r_')
+p2 = build_page(Maas, Maas_verw, 'm_')
+#p3 = [item for p in [p1,p2] for item in p]
+
+card = dbc.Card(
+    [
+        dbc.CardHeader(dbc.Tabs(
+                        [
+                            dbc.Tab(label="Afvoer Rijn", tab_id="r_tab"),
+                            dbc.Tab(label="Afvoer Maas", tab_id="m_tab")
+                        ],
+                        id="tabs", 
+                        active_tab="r_tab"
+                )),
+        dbc.CardBody(html.Div(p1, id='card-content')),
+    ],
+    style={"width": "100%", "margin-top": "40px"},
 )
-def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
-    dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
-    if ctx.triggered_id == 'ref_yr':
-         qrange=[0,calculate_rangemax(ref_yr)]
-    return build_graph(Qday, dfs, currentyear,ref_yr, extra_years= extra_years,qrange=qrange)
+
+#app.layout = dbc.Container(p3)
+app.layout = dbc.Container(card)
+#app.title = 'Afvoer Rijn en Maas'
 
 @app.callback(
-    Output(component_id='title', component_property='children'),
-    Input(component_id='ref_yr', component_property='value'),
+    Output(component_id='card-content', component_property='children'),[
+    Input(component_id='tabs', component_property='active_tab')
+    ]
+)
+def render_content(tab):
+    if tab == 'r_tab':
+        return p1
+    elif tab == 'm_tab':
+        return p2
+    else:
+        return p1
+
+@app.callback(
+    Output(component_id='r_graph', component_property='figure'),[
+    Input(component_id='r_ref_yr', component_property='value'),
+    Input(component_id='r_extra_yrs', component_property='value'),
+    Input(component_id='r_stats', component_property='value'),
+    Input(component_id='r_sm_window', component_property='value'),
+    Input(component_id='r_qRange', component_property='value')
+    ]
+)
+def r_UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
+    #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
+    if ctx.triggered_id == 'r_ref_yr':
+         qrange=[0,calculate_rangemax(Rijn,ref_yr)]
+    return build_graph(Rijn,Rijn_verw,ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
+
+@app.callback(
+    Output(component_id='r_title', component_property='children'),
+    Input(component_id='r_ref_yr', component_property='value'),
+)
+def r_ChangeTitle(ref_yr):
+    if ref_yr is None:
+        return 'Afvoer Rijn (Lobith)'
+    else:
+        return 'Afvoer Rijn (Lobith) ' + str(ref_yr)
+
+@app.callback(
+    Output(component_id='r_qRange', component_property='value'),
+    Input(component_id='r_ref_yr', component_property='value'),
+)
+def r_reset_qRange(ref_yr):
+    return [0,calculate_rangemax(Rijn,ref_yr)]
+
+@app.callback(
+    Output(component_id='r_subtitle', component_property='children'),
+    Input(component_id='r_stats', component_property='value'),
+)
+def r_ChangeSubtitle(stat_range):
+    return create_subtitle(stat_range)
+
+
+@app.callback(
+    Output(component_id='m_graph', component_property='figure'),[
+    Input(component_id='m_ref_yr', component_property='value'),
+    Input(component_id='m_extra_yrs', component_property='value'),
+    Input(component_id='m_stats', component_property='value'),
+    Input(component_id='m_sm_window', component_property='value'),
+    Input(component_id='m_qRange', component_property='value')
+    ]
+)
+def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
+    #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
+    if ctx.triggered_id == 'm_ref_yr':
+         qrange=[0,calculate_rangemax(Maas,ref_yr)]
+    return build_graph(Maas,Maas_verw, ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
+
+@app.callback(
+    Output(component_id='m_title', component_property='children'),
+    Input(component_id='m_ref_yr', component_property='value'),
 )
 def ChangeTitle(ref_yr):
     if ref_yr is None:
-        return 'Afvoer Lobith'
+        return 'Afvoer Maas (St. Pieter)'
     else:
-        return 'Afvoer Lobith ' + str(ref_yr)
+        return 'Afvoer Maas (St. Pieter) ' + str(ref_yr)
 
 @app.callback(
-    Output(component_id='qRange', component_property='value'),
-    Input(component_id='ref_yr', component_property='value'),
+    Output(component_id='m_qRange', component_property='value'),
+    Input(component_id='m_ref_yr', component_property='value'),prevent_initial_call=True
 )
 def reset_qRange(ref_yr):
-    return [0,calculate_rangemax(ref_yr)]
+    return [0,calculate_rangemax(Maas,ref_yr)]
 
 @app.callback(
-    Output(component_id='subtitle', component_property='children'),
-    Input(component_id='stats', component_property='value'),
+    Output(component_id='m_subtitle', component_property='children'),
+    Input(component_id='m_stats', component_property='value'),
 )
 def ChangeSubtitle(stat_range):
     return create_subtitle(stat_range)
 
 
+
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run(debug=True)
