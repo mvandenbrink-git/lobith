@@ -82,7 +82,7 @@ def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years =
             if not (LMW_prediction is None):
                 Q_pred = fill_series.copy()
                 Q_pred.update(LMW_prediction.get_data())
-                fig.add_trace(go.Scatter(x=x, y=Q_pred, mode = 'lines', name = 'verwacht', line= dict(color='red')))
+                fig.add_trace(go.Scatter(x=x, y=Q_pred, mode = 'lines', name = 'verwacht', line= dict(color='grey', dash = 'dash')))
     else:
         ref_yr_label = ''
 
@@ -93,10 +93,7 @@ def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years =
     return fig
 
 def create_subtitle(stat_range):
-    return 'ten opzichte van statistiek {}-{}'.format(str(stat_range[0]), str(stat_range[1]))
-
-def calculate_rangemax (LMW_series,ref_yr):
-    return LMW_series.range_max(ref_yr)
+    return f'ten opzichte van statistiek {str(stat_range[0])}-{str(stat_range[1])}'
 
 def build_page(LMW_series, LMW_prediction,prefix):
     """
@@ -105,9 +102,10 @@ def build_page(LMW_series, LMW_prediction,prefix):
     return([dbc.Row(html.H2('Afvoer ' + LMW_series.attributes['name'] + ' ' + str(LMW_series.current_year()), id=prefix + 'title')),
             dbc.Row(html.H5(create_subtitle([1991, 2020]), id=prefix + 'subtitle')),
             dbc.Row([
-                dbc.Col(dcc.RangeSlider(id=prefix + 'qRange', min=0, max=calculate_rangemax(LMW_series,None),
-                                        value=[0, calculate_rangemax(LMW_series, LMW_series.current_year())],
-                                        step=1000, vertical=True), width=1),
+                dbc.Col(dcc.RangeSlider(id=prefix + 'qRange', min=0, max=LMW_series.range_max(),
+                                        value=[0, LMW_series.range_max(LMW_series.current_year())],
+                                        #step=range_step, 
+                                        vertical=True), width=1),
                 dbc.Col(dcc.Graph(id=prefix + 'graph', figure=build_graph(LMW_series, LMW_prediction)), width=9),
                 dbc.Col([
                     dbc.Row(html.H6("Referentiejaar")),
@@ -126,7 +124,7 @@ def build_page(LMW_series, LMW_prediction,prefix):
                       dcc.RangeSlider(id=prefix + 'stats',
                                       min= min(LMW_series.time_range('years')),
                                       max = max(LMW_series.time_range('years')),
-                                      step = None,
+                                      #step = None,
                                       value = list(LMW_series.time_range('climate')),
                                       pushable = 20,
                                       marks = LMW_series.time_range('marks')
@@ -206,7 +204,7 @@ def render_content(tab):
 def r_UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
     #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
     if ctx.triggered_id == 'r_ref_yr':
-         qrange=[0,calculate_rangemax(Rijn,ref_yr)]
+         qrange=[0,Rijn.range_max(ref_yr)]
     return build_graph(Rijn,Rijn_verw,ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
 
 @app.callback(
@@ -224,7 +222,7 @@ def r_ChangeTitle(ref_yr):
     Input(component_id='r_ref_yr', component_property='value'),
 )
 def r_reset_qRange(ref_yr):
-    return [0,calculate_rangemax(Rijn,ref_yr)]
+    return [0,Rijn.range_max(ref_yr)]
 
 @app.callback(
     Output(component_id='r_subtitle', component_property='children'),
@@ -246,7 +244,7 @@ def r_ChangeSubtitle(stat_range):
 def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
     #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
     if ctx.triggered_id == 'm_ref_yr':
-         qrange=[0,calculate_rangemax(Maas,ref_yr)]
+         qrange=[0,Maas.range_max(ref_yr)]
     return build_graph(Maas,Maas_verw, ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
 
 @app.callback(
@@ -264,7 +262,7 @@ def ChangeTitle(ref_yr):
     Input(component_id='m_ref_yr', component_property='value'),prevent_initial_call=True
 )
 def reset_qRange(ref_yr):
-    return [0,calculate_rangemax(Maas,ref_yr)]
+    return [0,Maas.range_max(ref_yr)]
 
 @app.callback(
     Output(component_id='m_subtitle', component_property='children'),

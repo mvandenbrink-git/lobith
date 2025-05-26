@@ -218,30 +218,36 @@ class LMWTimeseries:
         :return: a tuple or a dict, depending on the mode
         """
         df = self.get_data(skip_leap_days=False)
+        num_years = df.index[-1].year - df.index[0].year + 1
+        if num_years < 60:
+            yr_interval = 5
+        else:
+            yr_interval = 10
+
         if mode == 'years':
             return (df.index[0].year, df.index[-1].year)
         elif mode == 'days':
             return (df.index[0], df.index[-1])
         elif mode == 'climate':
-            offset = df.index[-1].year % 10
-            start = df.index[-1].year - offset
-            return (start - 29, start)
+            offset = (df.index[-1].year - 1 )% yr_interval
+            end = df.index[-1].year - 1 - offset
+            return (end - 29, end)
         elif mode == 'marks':
             # de eerste markering is het eerste jaar van de tijdreeks
             marks = {df.index[0].year: str(df.index[0].year)}
 
             # de start van reeks markeringen is het startjaar van het eerste volledige decennium
-            offset = df.index[0].year % 10
-            start = df.index[0].year + 10 - offset
+            offset = df.index[0].year % yr_interval
+            start = df.index[0].year + yr_interval - offset
             
             # de laatste markering is het startjaar van het laatste volledige decennium of het laatste decennium
-            offset = df.index[-1].year % 10
+            offset = df.index[-1].year % yr_interval
             if offset < 4:
-                end = df.index[-1].year - offset - 10
+                end = df.index[-1].year - offset - yr_interval
             else:
                 end = df.index[-1].year - offset 
 
-            for i in range(start, end + 1, 10):
+            for i in range(start, end + 1, yr_interval):
                 marks[i] = f'{i}'
 
             # de laatste markering is het laatste jaar van de tijdreeks
