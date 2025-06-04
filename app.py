@@ -151,9 +151,9 @@ Rijn_verw = LMWTimeseries('lobith_verwacht.cfg')
 Maas = LMWTimeseries('stpieter.cfg')
 Maas_verw = LMWTimeseries('stpieter_verwacht.cfg')
 
-Rijn.update()
+#Rijn.update()
 Rijn_verw.update(append=False)
-Maas.update()
+#Maas.update()
 Maas_verw.update(append=False)
 
 p1 = build_page(Rijn, Rijn_verw,'r_')

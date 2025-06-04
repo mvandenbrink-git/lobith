@@ -77,10 +77,22 @@ class LMWTimeseries:
         :return: Metadata and data from the web service
         """
 
+        if 'update_log_file' in self.attributes:
+            log_file = Path(self.attributes['update_log_file'])
+            if not log_file.is_file():
+                log_file.touch()
+            with open(log_file, 'a') as f:
+                f.write(f'{datetime.now()} - Updating data for {self.attributes["LMW_loc_code"]}\n')
+
         if append:
             df_current = self.read_data_files([self.attributes['current_data_file']])
+            with open(log_file, 'a') as f:
+                f.write(f'    Appending to existing data in {self.attributes["current_data_file"]}\n')
+                f.write(f'    Last available timestamp: {df_current.index[-1]}\n')
         else:
             df_current = pd.DataFrame()
+            with open(log_file, 'a') as f:
+                f.write(f'    Replace existing data in {self.attributes["current_data_file"]}\n')
         
         # start_date = laatste datum in de huidige data 
         # end_date = start van vandaag (laaste waarden van de dag ervoor)
@@ -109,11 +121,19 @@ class LMWTimeseries:
         resp = requests.post(self.url_data_ophalen, json=request)
         meta, data = self.parse_response(resp)
 
+        with open(log_file, 'a') as f:
+                f.write(f'    Fetching new data from {self.url_data_ophalen}\n')
+                f.write(f'    Returned: {meta["message"]}\n')
+
         if meta['has_data']:
             dfm = data['data']['Waarde_Numeriek'].squeeze()
 
             # controleren op ontbrekende waarden 
             dfm.loc[dfm > 20000] = nan
+
+            with open(log_file, 'a') as f:
+                f.write(f'    Fetched {len(dfm)} new entries between {dfm.index[0]} and {dfm.index[-1]}\n')
+                f.write(f'    including {sum(dfm.isna())} missing values\n')
 
             dfm = dfm.resample('D').mean()
             dfm = dfm.rename(self.attributes['LMW_grootheid_code'])
