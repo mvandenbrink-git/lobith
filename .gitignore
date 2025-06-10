@@ -3,11 +3,11 @@ data/Q_Lobith_all.csv
 .vscode/launch.json
 .ipynb_checkpoints/Lobith actueel en statistiek-checkpoint.ipynb
 .DS_Store
-__pycache__/lobith_data_update.cpython-39.pyc
+__pycache__/
 .ipynb_checkpoints/Lobith dash-checkpoint.ipynb
 Lobith dash.ipynb
-__pycache__/test.cpython-39.pyc
 lobith.code-workspace
 qlobith_task_log.txt
 data/hist/20250425_009.csv
 data/hist/20250425_009.zip
+lobith_data_update.py

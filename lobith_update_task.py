@@ -1,4 +1,4 @@
-import LMWTimeseries
+from LMWTimeseries import LMWTimeseries
 
 Rijn = LMWTimeseries('lobith.cfg')
 #Rijn_verw = LMWTimeseries('lobith_verwacht.cfg')
