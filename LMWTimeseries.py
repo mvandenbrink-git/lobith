@@ -60,7 +60,7 @@ class LMWTimeseries:
             f = Path(data_file)
             if f.is_file():
                 dfq = pd.read_csv(data_file)
-                dfq['timestamp'] = pd.to_datetime(dfq['timestamp'], format = 'ISO8601')
+                dfq['timestamp'] = pd.to_datetime(dfq['timestamp'], format = '%Y-%m-%d')
                 dfq = dfq.set_index('timestamp')
                 dfq = dfq.resample('D').mean()
                 #dfq = dfq.rename(columns = {'QLobith':'Q'})
