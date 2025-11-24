@@ -27,3 +27,38 @@
     Returned: Success (status code: 200)
     Fetched 223 new entries between 2025-06-03 01:00:00 and 2025-06-04 14:00:00
     including 0 missing values
+2025-11-20 15:59:27.300435 - Updating data for LOBI
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-06-03 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 14192 new entries between 2025-06-03 01:00:00 and 2025-09-09 14:10:00
+    including 10 missing values
+2025-11-20 16:08:24.210611 - Updating data for LOBI
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-09-08 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 224 new entries between 2025-09-08 01:00:00 and 2025-09-09 14:10:00
+    including 0 missing values
+2025-11-22 15:25:42.950044 - Updating data for LOBI
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-09-08 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 224 new entries between 2025-09-08 01:00:00 and 2025-09-09 14:10:00
+    including 0 missing values
+2025-11-24 07:41:17.336034 - Updating data for LOBI
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-09-08 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 224 new entries between 2025-09-08 01:00:00 and 2025-09-09 14:10:00
+    including 0 missing values
+2025-11-24 08:29:32.140592 - Updating data for LOBI
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-09-08 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 10911 new entries between 2025-09-09 13:50:00 and 2025-11-24 08:10:00
+    including 4 missing values
