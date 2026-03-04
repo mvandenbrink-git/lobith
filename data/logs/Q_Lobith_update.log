@@ -62,3 +62,32 @@
     Returned: Success (status code: 200)
     Fetched 10911 new entries between 2025-09-09 13:50:00 and 2025-11-24 08:10:00
     including 4 missing values
+2026-03-04 23:18:47.083473 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+2026-03-04 23:21:16.453420 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+2026-03-04 23:23:33.081248 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+2026-03-04 23:24:15.862795 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Request failed (status code: 204)
+2026-03-04 23:24:17.066474 - Updating data for maastricht.borgharen.maas.beneden
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+2026-03-04 23:26:04.080665 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Request failed (status code: 204)
+2026-03-04 23:26:04.213307 - Updating data for maastricht.borgharen.maas.beneden
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2025-11-23 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 14589 new entries between 2025-11-23 00:00:00 and 2026-03-04 23:10:00
+    including 0 missing values

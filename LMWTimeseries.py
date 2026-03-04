@@ -6,19 +6,15 @@ import requests
 
 class LMWTimeseries:
     
-    def __init__(self, configfile = None):
+    def __init__(self, config_timeseries = None, config_webservice = None):
         """
         Initialize the LMWTimeseries object.
 
         """
         self.data = None
-        self.date_formatstring = "%Y-%m-%dT%H:%M:%S.000+01:00"
-        self.date_formatstring_day = "%Y-%m-%dT00:00:00.000+01:00"
-
-        self.url_data_ophalen = ('https://waterwebservices.rijkswaterstaat.nl/' +
-                        'ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen')
         
-        self.attributes =  self.read_config(configfile) if configfile is not None else {}
+        self.attributes =  self.read_config(config_timeseries) if config_timeseries is not None else {}
+        self.webservice_attributes = self.read_config(config_webservice) if config_webservice is not None else {}
 
     def get_data(self, skip_leap_days = False):
         """ 
@@ -97,32 +93,30 @@ class LMWTimeseries:
         # start_date = laatste datum in de huidige data 
         # end_date = start van vandaag (laaste waarden van de dag ervoor)
         if len(df_current) == 0:
-            start_date = (pd.Timestamp.today() - pd.Timedelta(30,'d')).strftime(self.date_formatstring_day)
+            start_date = (pd.Timestamp.today() - pd.Timedelta(30,'d')).strftime(self.webservice_attributes['date_formatstring_day'])
         else:
-            start_date = df_current.index[-1].strftime(self.date_formatstring_day)
-        end_date = (pd.Timestamp.today() + pd.Timedelta(7,'d')).strftime(self.date_formatstring_day)
+            start_date = df_current.index[-1].strftime(self.webservice_attributes['date_formatstring_day'])
+        end_date = (pd.Timestamp.today() + pd.Timedelta(7,'d')).strftime(self.webservice_attributes['date_formatstring_day'])
 
-        locatie = {'Code': self.attributes['LMW_loc_code'], 
-                   'X': self.attributes['LMW_loc_X'], 
-                   'Y': self.attributes['LMW_loc_Y']}
-        request = {
-            "AquoPlusWaarnemingMetadata": {
-                "AquoMetadata": {
-                    "Grootheid": {'Code' : self.attributes['LMW_grootheid_code']}
-                }
-            },
-            "Locatie": locatie,
-            "Periode": {
-                "Begindatumtijd": start_date,
-                "Einddatumtijd": end_date
-            }
-        }
+        request = {"Locatie": {"Code": self.attributes['LMW_loc_code']}, 
+               "AquoPlusWaarnemingMetadata":{
+                    "AquoMetadata":{
+                        "Compartiment":{"Code":"OW"},
+                        "Grootheid":{"Code":self.attributes['LMW_grootheid_code']},
+                        "ProcesType" : self.attributes['LMW_ProcesType']
+                    }
+                }, 
+                "Periode":{
+                    "Begindatumtijd":start_date,
+                    "Einddatumtijd":end_date
+                    }
+               }
 
-        resp = requests.post(self.url_data_ophalen, json=request)
+        resp = requests.post(self.webservice_attributes['url_ophalen_waarnemingen'], json=request)
         meta, data = self.parse_response(resp)
 
         with open(log_file, 'a') as f:
-                f.write(f'    Fetching new data from {self.url_data_ophalen}\n')
+                f.write(f'    Fetching new data from {self.webservice_attributes["url_ophalen_waarnemingen"]}\n')
                 f.write(f'    Returned: {meta["message"]}\n')
 
         if meta['has_data']:
@@ -173,7 +167,7 @@ class LMWTimeseries:
     
             for d in result['WaarnemingenLijst'][0]['MetingenLijst']:
         
-                ts = datetime.strptime(d['Tijdstip'], self.date_formatstring)
+                ts = datetime.strptime(d['Tijdstip'], self.webservice_attributes['date_formatstring'])
                 obs = {'timestamp': ts}
                 obs.update(d['Meetwaarde'])
                 obs.update(d['WaarnemingMetadata'])

@@ -48,3 +48,5 @@
     Returned: Success (status code: 200)
     Fetched 282 new entries between 2026-03-02 08:10:00 and 2026-03-04 07:00:00
     including 0 missing values
+2026-03-04 23:13:54.998325 - Updating data for LOBI
+    Replace existing data in data/Q_Lobith_verwacht.csv

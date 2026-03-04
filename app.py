@@ -146,18 +146,18 @@ app = Dash(__name__, external_stylesheets=external_stylesheets, suppress_callbac
 
 #Qday, currentyear = read_base_data()
 
-Rijn = LMWTimeseries('lobith.cfg')
-Rijn_verw = LMWTimeseries('lobith_verwacht.cfg')
-Maas = LMWTimeseries('stpieter.cfg')
-Maas_verw = LMWTimeseries('stpieter_verwacht.cfg')
+Rijn = LMWTimeseries('lobith.cfg', 'LMW.cfg')
+#Rijn_verw = LMWTimeseries('lobith_verwacht.cfg', 'LMW.cfg')
+Maas = LMWTimeseries('borgharen.cfg', 'LMW.cfg')
+#Maas_verw = LMWTimeseries('stpieter_verwacht.cfg', 'LMW.cfg')
 
-#Rijn.update()
-Rijn_verw.update(append=False)
-#Maas.update()
-Maas_verw.update(append=False)
+Rijn.update()
+#Rijn_verw.update(append=False)
+Maas.update()
+#Maas_verw.update(append=False)
 
-p1 = build_page(Rijn, Rijn_verw,'r_')
-p2 = build_page(Maas, Maas_verw, 'm_')
+p1 = build_page(Rijn, Rijn,'r_')
+p2 = build_page(Maas, Maas, 'm_')
 #p3 = [item for p in [p1,p2] for item in p]
 
 card = dbc.Card(
@@ -205,7 +205,7 @@ def r_UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
     #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
     if ctx.triggered_id == 'r_ref_yr':
          qrange=[0,Rijn.range_max(ref_yr)]
-    return build_graph(Rijn,Rijn_verw,ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
+    return build_graph(Rijn,Rijn,ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
 
 @app.callback(
     Output(component_id='r_title', component_property='children'),
@@ -245,7 +245,7 @@ def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
     #dfs = calculate_stats(Qday,stats_range[0], stats_range[1], window)
     if ctx.triggered_id == 'm_ref_yr':
          qrange=[0,Maas.range_max(ref_yr)]
-    return build_graph(Maas,Maas_verw, ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
+    return build_graph(Maas,Maas, ref_yr, extra_years= extra_years,qrange=qrange, stats_period=stats_range,window=window)
 
 @app.callback(
     Output(component_id='m_title', component_property='children'),
@@ -253,9 +253,9 @@ def UpdateGraph(ref_yr,extra_years,stats_range,window,qrange):
 )
 def ChangeTitle(ref_yr):
     if ref_yr is None:
-        return 'Afvoer Maas (St. Pieter)'
+        return 'Afvoer Maas (Borgharen)'
     else:
-        return 'Afvoer Maas (St. Pieter) ' + str(ref_yr)
+        return 'Afvoer Maas (Borgharen) ' + str(ref_yr)
 
 @app.callback(
     Output(component_id='m_qRange', component_property='value'),
