@@ -147,14 +147,14 @@ app = Dash(__name__, external_stylesheets=external_stylesheets, suppress_callbac
 #Qday, currentyear = read_base_data()
 
 Rijn = LMWTimeseries('lobith.cfg', 'LMW.cfg')
-#Rijn_verw = LMWTimeseries('lobith_verwacht.cfg', 'LMW.cfg')
+Rijn_verw = LMWTimeseries('lobith_verwacht.cfg', 'LMW.cfg')
 Maas = LMWTimeseries('borgharen.cfg', 'LMW.cfg')
-#Maas_verw = LMWTimeseries('stpieter_verwacht.cfg', 'LMW.cfg')
+Maas_verw = LMWTimeseries('borgharen_verwacht.cfg', 'LMW.cfg')
 
 Rijn.update()
-#Rijn_verw.update(append=False)
+Rijn_verw.update(append=False)
 Maas.update()
-#Maas_verw.update(append=False)
+Maas_verw.update(append=False)
 
 p1 = build_page(Rijn, Rijn,'r_')
 p2 = build_page(Maas, Maas, 'm_')

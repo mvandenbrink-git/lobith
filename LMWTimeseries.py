@@ -84,7 +84,7 @@ class LMWTimeseries:
             df_current = self.read_data_files([self.attributes['current_data_file']])
             with open(log_file, 'a') as f:
                 f.write(f'    Appending to existing data in {self.attributes["current_data_file"]}\n')
-                f.write(f'    Last available timestamp: {df_current.index[-1]}\n')
+                f.write(f'    Last available timestamp: {df_current.index[-1] if not df_current.empty else None}\n')
         else:
             df_current = pd.DataFrame()
             with open(log_file, 'a') as f:

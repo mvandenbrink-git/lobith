@@ -91,3 +91,55 @@
     Returned: Success (status code: 200)
     Fetched 14589 new entries between 2025-11-23 00:00:00 and 2026-03-04 23:10:00
     including 0 missing values
+2026-03-11 22:48:55.082399 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-03 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Request failed (status code: 204)
+2026-03-11 22:48:55.271656 - Updating data for maastricht.borgharen.maas.beneden
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-03 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 1284 new entries between 2026-03-03 00:00:00 and 2026-03-11 22:40:00
+    including 0 missing values
+2026-03-11 22:50:05.221522 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Request failed (status code: 204)
+2026-03-11 22:55:49.532433 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 280 new entries between 2026-03-10 00:00:00 and 2026-03-11 22:40:00
+    including 0 missing values
+2026-03-11 22:57:11.523299 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 280 new entries between 2026-03-10 00:00:00 and 2026-03-11 22:40:00
+    including 0 missing values
+2026-03-11 23:03:14.685704 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 281 new entries between 2026-03-10 00:00:00 and 2026-03-11 22:50:00
+    including 0 missing values
+2026-03-11 23:06:05.567837 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 281 new entries between 2026-03-10 00:00:00 and 2026-03-11 22:50:00
+    including 0 missing values
+2026-03-11 23:09:22.780444 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-10 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 281 new entries between 2026-03-10 00:00:00 and 2026-03-11 22:50:00
+    including 0 missing values

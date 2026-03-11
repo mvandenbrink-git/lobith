@@ -50,3 +50,35 @@
     including 0 missing values
 2026-03-04 23:13:54.998325 - Updating data for LOBI
     Replace existing data in data/Q_Lobith_verwacht.csv
+2026-03-11 22:50:05.388286 - Updating data for LOBI
+    Replace existing data in data/Q_Lobith_verwacht.csv
+2026-03-11 22:55:49.803035 - Updating data for lobith.bovenrijn.tolkamer
+    Replace existing data in data/Q_Lobith_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 4651 new entries between 2026-02-09 00:00:00 and 2026-03-13 07:00:00
+    including 0 missing values
+2026-03-11 22:57:11.732363 - Updating data for lobith.bovenrijn.tolkamer
+    Replace existing data in data/Q_Lobith_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 4651 new entries between 2026-02-09 00:00:00 and 2026-03-13 07:00:00
+    including 0 missing values
+2026-03-11 23:03:14.946988 - Updating data for lobith.bovenrijn.tolkamer
+    Replace existing data in data/Q_Lobith_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 4651 new entries between 2026-02-09 00:00:00 and 2026-03-13 07:00:00
+    including 0 missing values
+2026-03-11 23:06:05.802346 - Updating data for lobith.bovenrijn.tolkamer
+    Replace existing data in data/Q_Lobith_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 4651 new entries between 2026-02-09 00:00:00 and 2026-03-13 07:00:00
+    including 0 missing values
+2026-03-11 23:09:23.056260 - Updating data for lobith.bovenrijn.tolkamer
+    Replace existing data in data/Q_Lobith_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 4651 new entries between 2026-02-09 00:00:00 and 2026-03-13 07:00:00
+    including 0 missing values
