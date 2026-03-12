@@ -2,8 +2,8 @@ from LMWTimeseries import LMWTimeseries
 
 Rijn = LMWTimeseries('lobith.cfg')
 #Rijn_verw = LMWTimeseries('lobith_verwacht.cfg')
-Maas = LMWTimeseries('stpieter.cfg')
-#Maas_verw = LMWTimeseries('stpieter_verwacht.cfg')
+Maas = LMWTimeseries('borgharen.cfg')
+#Maas_verw = LMWTimeseries('borgharen_verwacht.cfg')
 
 Rijn.update()
 Maas.update()
