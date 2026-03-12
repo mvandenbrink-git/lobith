@@ -27,3 +27,17 @@
     Returned: Success (status code: 200)
     Fetched 223 new entries between 2025-06-03 01:00:00 and 2025-06-04 14:00:00
     including 0 missing values
+2026-03-12 08:26:46.360393 - Updating data for SINT
+    Appending to existing data in data/Q_StPieter_2025-.csv
+    Last available timestamp: 2025-06-03 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 26461 new entries between 2025-09-09 14:20:00 and 2026-03-12 08:20:00
+    including 4 missing values
+2026-03-12 08:26:59.201840 - Updating data for SINT
+    Appending to existing data in data/Q_StPieter_2025-.csv
+    Last available timestamp: 2026-03-11 00:00:00
+    Fetching new data from https://waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES_DBO/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 195 new entries between 2026-03-11 00:00:00 and 2026-03-12 08:20:00
+    including 0 missing values
