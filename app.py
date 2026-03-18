@@ -19,6 +19,8 @@ bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
 extra_yrs_colors = ['black', 'blue', 'green']
 extra_yrs_dash = ['dot', 'dash', 'dashdot']
 
+print(bckgr_quantiles['names'])
+
 def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years = [], qrange = [0,12000], 
                  stats_period = [1991,2020], window = 5, quantiles = bckgr_quantiles['numeric']):
     """
@@ -156,8 +158,8 @@ Rijn_verw.update(append=False)
 Maas.update()
 Maas_verw.update(append=False)
 
-p1 = build_page(Rijn, Rijn,'r_')
-p2 = build_page(Maas, Maas, 'm_')
+p1 = build_page(Rijn, Rijn_verw,'r_')
+p2 = build_page(Maas, Maas_verw, 'm_')
 #p3 = [item for p in [p1,p2] for item in p]
 
 card = dbc.Card(
@@ -274,4 +276,5 @@ def ChangeSubtitle(stat_range):
 
 
 if __name__ == '__main__':
+    
     app.run(debug=True)
