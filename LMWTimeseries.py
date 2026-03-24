@@ -93,7 +93,7 @@ class LMWTimeseries:
         # start_date = laatste datum in de huidige data 
         # end_date = start van vandaag (laaste waarden van de dag ervoor)
         if len(df_current) == 0:
-            start_date = (pd.Timestamp.today() - pd.Timedelta(30,'d')).strftime(self.webservice_attributes['date_formatstring_day'])
+            start_date = (pd.Timestamp.today() - pd.Timedelta(1,'d')).strftime(self.webservice_attributes['date_formatstring_day'])
         else:
             start_date = df_current.index[-1].strftime(self.webservice_attributes['date_formatstring_day'])
         end_date = (pd.Timestamp.today() + pd.Timedelta(7,'d')).strftime(self.webservice_attributes['date_formatstring_day'])

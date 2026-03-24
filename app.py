@@ -19,8 +19,6 @@ bckgr_quantiles = {'numeric':[.02, 0.1, .3, .5, .7, .9, .98],
 extra_yrs_colors = ['black', 'blue', 'green']
 extra_yrs_dash = ['dot', 'dash', 'dashdot']
 
-print(bckgr_quantiles['names'])
-
 def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years = [], qrange = [0,12000], 
                  stats_period = [1991,2020], window = 5, quantiles = bckgr_quantiles['numeric']):
     """
@@ -34,6 +32,7 @@ def build_graph (LMW_series, LMW_prediction = None, ref_yr = None, extra_years =
     x = pd.date_range(start=f"{date_year}-01-01",end=f"{date_year}-12-31")
 
     df_stat = LMW_series.calculate_stats(stats_period[0], stats_period[1], quantiles, window)
+    
     dfq = LMW_series.get_data()
 
     fig = go.Figure()
