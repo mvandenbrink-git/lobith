@@ -106,3 +106,15 @@
     Returned: Success (status code: 200)
     Fetched 475 new entries between 2026-03-23 00:00:00 and 2026-03-26 07:00:00
     including 0 missing values
+2026-03-26 21:06:55.122859 - Updating data for maastricht.borgharen.maas.beneden
+    Replace existing data in data/Q_Borgharen_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 475 new entries between 2026-03-25 00:00:00 and 2026-03-28 07:00:00
+    including 0 missing values
+2026-03-26 21:06:57.802275 - Updating data for maastricht.borgharen.maas.beneden
+    Replace existing data in data/Q_Borgharen_verwacht.csv
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 475 new entries between 2026-03-25 00:00:00 and 2026-03-28 07:00:00
+    including 0 missing values

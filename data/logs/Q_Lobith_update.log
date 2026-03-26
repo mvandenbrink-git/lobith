@@ -265,3 +265,10 @@
     Returned: Success (status code: 200)
     Fetched 276 new entries between 2026-03-23 00:00:00 and 2026-03-24 22:00:00
     including 0 missing values
+2026-03-26 21:02:51.180811 - Updating data for lobith.bovenrijn.tolkamer
+    Appending to existing data in data/Q_Lobith_2023-.csv
+    Last available timestamp: 2026-03-23 00:00:00
+    Fetching new data from https://ddapi20-waterwebservices.rijkswaterstaat.nl/ONLINEWAARNEMINGENSERVICES/OphalenWaarnemingen
+    Returned: Success (status code: 200)
+    Fetched 555 new entries between 2026-03-23 00:00:00 and 2026-03-26 20:50:00
+    including 0 missing values
